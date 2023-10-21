@@ -8,12 +8,25 @@ from pydantic import BaseModel
 from PIL import Image
 from io import BytesIO
 import os
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 api_key = os.getenv("IBM_API_KEY")
 IBMQ.save_account(api_key)
 provider = IBMQ.load_account()
-
-app = FastAPI()
 
 class Circuit(BaseModel):
     qasm: str
