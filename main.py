@@ -18,7 +18,7 @@ app = FastAPI()
 class Circuit(BaseModel):
     qasm: str
 
-@app.post("/circuit/")
+@app.post("/circuit")
 async def create_circuit(circuit: Circuit):
     print(circuit.qasm)
     circuit = QuantumCircuit.from_qasm_str(circuit.qasm)
@@ -27,7 +27,7 @@ async def create_circuit(circuit: Circuit):
     job = backend.run(transpiled)
     return job.job_id()
 
-@app.post("/draw/")
+@app.post("/draw")
 async def create_circuit(circuit: Circuit):
     print(circuit.qasm)
     circuit = QuantumCircuit.from_qasm_str(circuit.qasm)
