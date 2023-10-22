@@ -31,18 +31,16 @@ provider = IBMQ.load_account()
 class Circuit(BaseModel):
     qasm: str
 
-@app.post("/circuit")
-async def create_circuit(circuit: Circuit):
-    print(circuit.qasm)
+@app.post("/circuit/")
+async def create_circuit(circuit: Circuit, backend_name: str | None = "ibmq_qasm_simulator"):
     circuit = QuantumCircuit.from_qasm_str(circuit.qasm)
-    backend = provider.get_backend('ibmq_qasm_simulator')
+    backend = provider.get_backend(backend_name)
     transpiled = transpile(circuit, backend=backend)
     job = backend.run(transpiled)
     return job.job_id()
 
 @app.post("/draw")
 async def create_circuit(circuit: Circuit):
-    print(circuit.qasm)
     circuit = QuantumCircuit.from_qasm_str(circuit.qasm)
     drawn_image = circuit.draw(output="mpl")
     buffer = BytesIO()
@@ -52,8 +50,8 @@ async def create_circuit(circuit: Circuit):
     return StreamingResponse(buffer, media_type="image/png")
 
 @app.post("/result/{job_id}")
-def get_result(job_id: str):
-    job = provider.get_backend('ibmq_qasm_simulator').retrieve_job(job_id)
+def get_result(job_id: str, backend_name: str | None = "ibmq_qasm_simulator"):
+    job = provider.get_backend(backend_name).retrieve_job(job_id)
     result = job.result()
     data = {}
     counts = result.results[0].data.counts
